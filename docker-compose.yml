@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  resume-ai:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: resume-ai-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MINIMAX_API_KEY=${MINIMAX_API_KEY}
+      - MINIMAX_MODEL=abab7
+      - ALIYUN_OCR_API_KEY=${ALIYUN_OCR_API_KEY:-}
+      - ALIYUN_OCR_API_SECRET=${ALIYUN_OCR_API_SECRET:-}
+      - UPLOAD_DIR=/app/uploads
+      - MAX_FILE_SIZE_MB=10
+      - BACKEND_CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+    volumes:
+      - resume-uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  resume-uploads:
